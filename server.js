@@ -1,15 +1,23 @@
 const express = require("express");
 
 const app = express();
-let requestAt = new Date().getHours();
-console.log(requestAt);
-app.use(express.static(__dirname + "/public"));
+app.use(
+  (middleware = (req, resp, next) => {
+    const date = new Date();
+    const time = date.getHours();
 
-app.get("/", (req, res) => {
-  if (requestAt < 8 || requestAt > 17)
-    res.sendFile(__dirname + "/public/ourServices.html");
-  else res.sendFile(__dirname + "/public/home.html");
-  console.log("we open from 8 to 17");
+    if (time >= 8 && time <= 17) next();
+    else resp.send("Our office is not open now");
+  })
+);
+app.get("/", (req, resp) => {
+  resp.sendFile(__dirname + "/public/home.html");
+});
+app.get("/services", (req, resp) => {
+  resp.sendFile(__dirname + "/public/ourServices.html");
+});
+app.get("/contact", (req, resp) => {
+  resp.sendFile(__dirname + "/public/contact.html");
 });
 
 app.listen(3000, err => {
